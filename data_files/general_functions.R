@@ -51,7 +51,6 @@ sample_size_kommune_year = function(df) {
 #Example function call
 #sample_size_kommune_year(data_2022)
 
-
 #Mean and median response rate finder
 sample_size_averages = function(df) {
   
@@ -87,7 +86,14 @@ graph_relationship = function (df, y_axis, x_axis,
              y = {{y_axis}})) +
     geom_point() + geom_smooth(method = "lm", se = FALSE) + 
     labs(x = label_x, y = label_y, title = title) +
-    theme(plot.title = element_text(hjust = 0.5))
+    theme(plot.title = element_text(hjust = 0.5)) +
+    #geom_text(aes(label= ifelse({{y_axis}} > quantile({{y_axis}}, 0.925) |
+    #                              {{x_axis}} > quantile({{x_axis}}, 0.925) |
+    #                            {{y_axis}} < quantile({{y_axis}}, 0.025) |
+    #                              {{x_axis}} < quantile({{x_axis}}, 0.025),
+    #                            as.character(kommunenavn),'')),
+    #          hjust=0,vjust=0,size = 3.5)
+    geom_text(label=df$kommunenavn, size = 3)
 }
 #Example function call
 #graph_relationship(key_covid_results$depression_over_covid$dataframe,
@@ -96,4 +102,34 @@ graph_relationship = function (df, y_axis, x_axis,
 #"% Of Population Infected With Covid-19",
 #"Change in Aggregate Depression Score")
 
+#This scales its input variables to a standardized max value of 100
+scale_vars = function (df, ignore_vars) {
+  vars = colnames(df)
+  for (i in 1:length(vars)) {
+    df$var = df[,vars[i]]
+    if (!(vars[i] %in% ignore_vars)) {
+      df$var = 10 * ((df$var - min(df$var, na.rm = TRUE)) /
+                        max(df$var, na.rm = TRUE))
+    }
+    df[,vars[i]] = df$var
+    if (i %% 100 == 0) {
+      print(sprintf("Done with row: %.0f", i))
+    }
+  }
+  df = subset(df, select = -c(var))
+  return(df)
+}
+
+#This negates values in the dataframe to account for non-logical
+#survey response options
+negate_vars = function (df, vars) {
+  for (i in 1:length(vars)) {
+    df$var = -df[,vars[i]]
+    
+    df[,vars[i]] = df$var
+  }
+  df = subset(df, select = -c(var))
+  
+  return(df)
+}
 

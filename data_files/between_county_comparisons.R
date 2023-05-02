@@ -50,17 +50,6 @@ ggplot(alc_and_drug_by_county,
 #Testing importance of religious beliefs on alcohol consumption
 summary(lm(alc_and_drug_agg~søs + relig2 + neigh_amenities, data=trimmed_data))
 
-#First time drinking alcohol correlation with current drug/alcohol consumption
-grouped_alc_debut = 
-  trimmed_data[trimmed_data$alko3 != 1 & trimmed_data$alko3 != 11,
-               c("county", "alc_and_drug_agg", "alko3", "early_alc_debut")] %>%
-  group_by(alko3) %>%
-  summarise(mean_alc_agg = mean(alc_and_drug_agg, na.rm = TRUE))
-
-ggplot(grouped_alc_debut,
-       aes(x= alko3, y= mean_alc_agg)) +
-  geom_point()
-
 #Difference between development in political vs. non-political youth following Utøya
 #The biggest terrorist attack in Norway in modern history, targeted at youth political camp
 trimmed_data$angst_agg = trimmed_data$angst1 + trimmed_data$angst2 + trimmed_data$angst4
